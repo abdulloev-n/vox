@@ -1,0 +1,56 @@
+{
+  "name": "vox",
+  "version": "0.1.0",
+  "description": "Voice dictation for Windows that cleans up what you say and pastes it into the active field",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "icon": "node scripts/make-icon.js",
+    "dist": "electron-builder --win nsis"
+  },
+  "build": {
+    "appId": "com.nazir.vox",
+    "productName": "Vox",
+    "files": [
+      "main.js",
+      "preload.js",
+      "lib/**",
+      "renderer/**",
+      "assets/**"
+    ],
+    "asarUnpack": [
+      "node_modules/uiohook-napi/**"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "npmRebuild": false
+  },
+  "dependencies": {
+    "uiohook-napi": "^1.5.5"
+  },
+  "devDependencies": {
+    "electron": "^44.7.0",
+    "electron-builder": "^26.15.3"
+  },
+  "author": "Nazir",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abdulloev-n/vox.git"
+  },
+  "homepage": "https://github.com/abdulloev-n/vox#readme",
+  "keywords": [
+    "dictation",
+    "speech-to-text",
+    "voice",
+    "electron",
+    "windows",
+    "openai"
+  ]
+}

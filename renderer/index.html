@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; media-src 'self' blob:">
+<title>Vox</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"></span>Vox</div>
+    <nav class="nav" aria-label="Sections">
+      <button class="nav-item is-active" data-tab="history" aria-current="page">History</button>
+      <button class="nav-item" data-tab="settings">Settings</button>
+    </nav>
+    <div class="side-foot">
+      <div class="switch-row">
+        <div>
+          <div class="switch-title" id="sideCleanLabel">Text cleanup</div>
+          <div class="switch-sub" id="sideCleanSub"></div>
+        </div>
+        <button class="switch" role="switch" aria-labelledby="sideCleanLabel" aria-checked="true" data-bind="cleanup"></button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <section id="tab-history" class="page">
+      <header class="page-head">
+        <h1>History</h1>
+        <input id="search" class="field search" type="search" placeholder="Search entries" aria-label="Search entries">
+      </header>
+      <div id="list" class="list"></div>
+      <div id="empty" class="empty" hidden>
+        <p class="empty-title" id="emptyTitle"></p>
+        <p class="empty-text" id="emptyText"></p>
+      </div>
+    </section>
+
+    <section id="tab-settings" class="page" hidden>
+      <header class="page-head"><h1>Settings</h1></header>
+
+      <div class="group">
+        <h2>Dictation</h2>
+        <div class="row">
+          <div class="row-text"><div class="row-title" id="cleanLabel">Text cleanup</div>
+            <div class="row-desc">Removes fillers like "um" and "uh", repeats and false starts, and fixes punctuation. Turn it off to paste the raw transcript.</div></div>
+          <button class="switch" role="switch" aria-labelledby="cleanLabel" aria-checked="true" data-bind="cleanup"></button>
+        </div>
+        <div class="row">
+          <div class="row-text"><label class="row-title" for="mode">Output style</label>
+            <div class="row-desc">"As typed" gives a plain message. "AI prompt" turns the dictation into a clear task with details.</div></div>
+          <select id="mode" class="field"><option value="chat">As typed</option><option value="prompt">AI prompt</option></select>
+        </div>
+        <div class="row row-col">
+          <div class="row-text"><label class="row-title" for="dict">Dictionary</label>
+            <div class="row-desc">Names and terms to spell exactly. One per line.</div></div>
+          <textarea id="dict" class="field" rows="4" placeholder="Figma&#10;Framer&#10;Upwork"></textarea>
+        </div>
+      </div>
+
+      <div class="group">
+        <h2>Hotkeys</h2>
+        <div class="row">
+          <div class="row-text"><div class="row-title">Hold to record</div>
+            <div class="row-desc">Hold the keys and talk. Release to finish.</div></div>
+          <div class="keys"><kbd id="holdLabel"></kbd><button class="btn" data-record="hold">Change</button></div>
+        </div>
+        <div class="row">
+          <div class="row-text"><div class="row-title">Press to record</div>
+            <div class="row-desc">Press once to start, press again to finish.</div></div>
+          <div class="keys"><kbd id="toggleLabel"></kbd><button class="btn" data-record="toggle">Change</button></div>
+        </div>
+        <p class="note" id="hkNote">Esc cancels a recording.</p>
+      </div>
+
+      <div class="group">
+        <h2>OpenAI</h2>
+        <div class="row row-col">
+          <div class="row-text"><label class="row-title" for="key">API key</label>
+            <div class="row-desc" id="keyState"></div></div>
+          <div class="inline">
+            <input id="key" class="field grow" type="password" autocomplete="off" spellcheck="false" placeholder="sk-…">
+            <button class="btn" id="keyShow" aria-pressed="false">Show</button>
+            <button class="btn btn-primary" id="keySave">Save</button>
+            <button class="btn" id="keyRemove">Remove key</button>
+          </div>
+          <p class="note" id="keyNote" role="status"></p>
+        </div>
+        <div class="row">
+          <div class="row-text"><label class="row-title" for="stt">Transcription model</label>
+            <div class="row-desc">Type any model name your key can use.</div></div>
+          <input id="stt" class="field model" type="text" list="sttList" autocomplete="off" spellcheck="false" placeholder="gpt-4o-transcribe">
+          <datalist id="sttList"><option value="gpt-4o-transcribe"><option value="gpt-4o-mini-transcribe"><option value="whisper-1"></datalist>
+        </div>
+        <div class="row">
+          <div class="row-text"><label class="row-title" for="clean">Cleanup model</label>
+            <div class="row-desc">Type any chat model name your key can use.</div></div>
+          <input id="clean" class="field model" type="text" list="cleanList" autocomplete="off" spellcheck="false" placeholder="gpt-4o-mini">
+          <datalist id="cleanList"><option value="gpt-4o-mini"><option value="gpt-4.1-mini"><option value="gpt-4.1"><option value="gpt-5-mini"></datalist>
+        </div>
+        <p class="note" id="modelNote" role="status"></p>
+      </div>
+
+      <div class="group">
+        <h2>Microphone</h2>
+        <div class="row">
+          <div class="row-text"><label class="row-title" for="mic">Recording device</label></div>
+          <select id="mic" class="field"></select>
+        </div>
+      </div>
+
+      <div class="group">
+        <h2>Memory</h2>
+        <div class="row">
+          <div class="row-text"><label class="row-title" for="days">Keep entries</label>
+            <div class="row-desc">Audio is never saved. Only text is kept.</div></div>
+          <select id="days" class="field"><option value="7">7 days</option><option value="30">30 days</option><option value="90">90 days</option><option value="0">Forever</option></select>
+        </div>
+        <div class="row">
+          <div class="row-text"><label class="row-title" for="max">Maximum entries</label></div>
+          <select id="max" class="field"><option value="100">100</option><option value="500">500</option><option value="2000">2000</option><option value="0">No limit</option></select>
+        </div>
+      </div>
+
+      <div class="group">
+        <h2>System</h2>
+        <div class="row">
+          <div class="row-text"><div class="row-title" id="autoLabel">Launch with Windows</div>
+            <div class="row-desc">Vox lives in the tray and waits for your hotkey.</div></div>
+          <button class="switch" role="switch" aria-labelledby="autoLabel" aria-checked="false" data-bind="autostart"></button>
+        </div>
+      </div>
+
+      <div class="group group-danger">
+        <h2>Delete</h2>
+        <div class="row">
+          <div class="row-text"><div class="row-title">Erase history</div>
+            <div class="row-desc">Deletes every entry from this computer. This cannot be undone.</div></div>
+          <button class="btn btn-danger" id="wipe">Erase history</button>
+        </div>
+        <div class="confirm" id="wipeConfirm" hidden>
+          <span id="wipeText"></span>
+          <button class="btn btn-danger" id="wipeYes"></button>
+          <button class="btn" id="wipeNo">Cancel</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden>
+  <span id="toastText"></span>
+  <button class="toast-btn" id="toastUndo" hidden>Undo</button>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
